@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nexus RAG Console</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Nexus</p>
+          <h1>Closed-Loop RAG Console</h1>
+        </div>
+        <div class="status-cluster">
+          <div class="status-pill" id="healthPill">
+            <span class="dot dot-warn"></span>
+            <span id="healthText">Checking</span>
+          </div>
+          <div class="status-pill">
+            <span>Model</span>
+            <strong id="modelText">-</strong>
+          </div>
+          <div class="status-pill">
+            <span>Index</span>
+            <strong id="indexText">-</strong>
+          </div>
+          <button class="icon-button" id="refreshButton" type="button" title="Refresh status">Refresh</button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="primary-column">
+          <section class="panel query-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Query workspace</p>
+                <h2>Ask the indexed knowledge base</h2>
+              </div>
+              <div class="run-state" id="runState">Idle</div>
+            </div>
+            <form id="queryForm" class="query-form">
+              <textarea id="queryInput" name="query" rows="5" placeholder="Ask a grounded question..." required></textarea>
+              <div class="query-controls">
+                <label class="field-inline">
+                  <span>Top K</span>
+                  <input id="topKInput" type="number" min="1" max="20" value="5" />
+                </label>
+                <button class="primary-button" id="queryButton" type="submit">Run Query</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel answer-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Generated response</p>
+                <h2>Answer</h2>
+              </div>
+              <div class="latency" id="latencyText">0 ms</div>
+            </div>
+            <div id="answerText" class="answer-text empty-state">No response yet.</div>
+          </section>
+
+          <section class="split-panels">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="panel-kicker">Retrieval results</p>
+                  <h2>Ranked chunks</h2>
+                </div>
+                <span class="count-badge" id="sourceCount">0</span>
+              </div>
+              <div id="sourcesList" class="source-list empty-state">Run a query to inspect chunks.</div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="panel-kicker">Source document</p>
+                  <h2>Chunk inspector</h2>
+                </div>
+              </div>
+              <div id="sourceDetail" class="source-detail empty-state">Select a retrieved chunk.</div>
+            </section>
+          </section>
+
+          <section class="panel trace-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Feedback loop</p>
+                <h2>Pipeline trace</h2>
+              </div>
+            </div>
+            <div id="traceList" class="trace-list empty-state">No pipeline runs yet.</div>
+          </section>
+        </section>
+
+        <aside class="secondary-column">
+          <section class="panel evaluation-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Self-evaluation</p>
+                <h2>Confidence</h2>
+              </div>
+              <button class="ghost-button" id="evaluateButton" type="button">Evaluate</button>
+            </div>
+            <div class="confidence-row">
+              <div class="confidence-ring" id="confidenceRing">0%</div>
+              <div>
+                <p class="verdict" id="verdictText">No verdict</p>
+                <p class="feedback" id="feedbackText">Evaluation appears after a query.</p>
+              </div>
+            </div>
+            <div class="score-stack" id="scoreStack"></div>
+            <div class="issue-grid">
+              <div>
+                <h3>Missing topics</h3>
+                <ul id="missingTopics"></ul>
+              </div>
+              <div>
+                <h3>Unsupported claims</h3>
+                <ul id="unsupportedClaims"></ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel metrics-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Pipeline metrics</p>
+                <h2>Runtime</h2>
+              </div>
+            </div>
+            <div class="metric-grid" id="metricGrid"></div>
+          </section>
+
+          <section class="panel documents-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Knowledge base</p>
+                <h2>Documents</h2>
+              </div>
+              <button class="ghost-button" id="documentsRefreshButton" type="button">Reload</button>
+            </div>
+            <form id="uploadForm" class="upload-form">
+              <input id="documentInput" type="file" name="file" />
+              <button class="secondary-button" id="uploadButton" type="submit">Upload</button>
+            </form>
+            <div id="documentsList" class="documents-list empty-state">No indexed documents loaded.</div>
+          </section>
+
+          <section class="panel history-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Response history</p>
+                <h2>Exports</h2>
+              </div>
+            </div>
+            <div class="history-actions">
+              <button class="secondary-button" id="downloadHistoryButton" type="button">Download JSON</button>
+              <button class="ghost-button" id="clearHistoryButton" type="button">Clear</button>
+            </div>
+            <div id="historyList" class="history-list empty-state">No saved responses.</div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
+
